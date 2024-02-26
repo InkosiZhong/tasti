@@ -29,7 +29,7 @@ from tasti.examples.night_street_offline import NightStreetLHSRecallQuery
 from tasti.examples.night_street_offline import NightStreetAveragePositionAggregateQuery
 
 # Feel free to change this!
-ROOT_DATA_DIR = '/home/inkosizhong/Lab/VideoQuery/datasets/jackson-town-square-small'
+ROOT_DATA_DIR = '/home/inkosizhong/Lab/VideoQuery/datasets/jackson-town-square'
 
 COCO_INSTANCE_CATEGORY_NAMES = [
     '__background__', 'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',
