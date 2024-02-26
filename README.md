@@ -10,8 +10,7 @@ Please read the [paper](https://arxiv.org/abs/2009.04540) for full technical det
 📦 Smaller: batch caching to reduce memory requirements.
 ```python
 # set in the threshold according to the memory size
-# in tasti/exmaples/bucketters.py
-NON_CACHE_THRESHOLD=1e6
+NON_CACHE_THRESHOLD=1e6 # in tasti/exmaples/bucketters.py
 ```
 
 📊 Friendly: add more logs and checkpoints.
