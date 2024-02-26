@@ -132,22 +132,21 @@ class NightStreetOnlineConfig(tasti.IndexConfig):
         self.do_bucketting = True
         
         self.batch_size = 16
-        self.nb_train = 1000
+        self.nb_train = 3000
         self.train_margin = 1.0
         self.train_lr = 1e-4
         self.max_k = 5
-        self.nb_buckets = 1000
-        self.nb_training_its = 1000
+        self.nb_buckets = 7000
+        self.nb_training_its = 12000
         
 if __name__ == '__main__':
     config = NightStreetOnlineConfig()
+    #config.eval() # use cache
     index = NightStreetOnlineIndex(config)
     index.init()
 
     query = NightStreetAggregateQuery(index)
-    #query.execute(err_tol=0.1, confidence=0.1)
-    query.execute_metrics(err_tol=0.1, confidence=0.1)
-    exit()
+    query.execute(err_tol=0.1, confidence=0.1)
 
     query = NightStreetLimitQuery(index)
     query.execute(want_to_find=4, nb_to_find=3)

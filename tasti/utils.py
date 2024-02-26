@@ -30,6 +30,9 @@ class DNNOutputCache:
             self.cache[idx] = result
             self.nb_of_invocations += 1
         return self.cache[idx]
+    
+    def __setitem__(self, idx, value):
+        self.cache[idx] = value
             
 class DNNOutputCacheFloat:
     def __init__(self, target_dnn_cache, scoring_fn, idx):
