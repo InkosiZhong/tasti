@@ -9,11 +9,26 @@ from supg.sampler import ImportanceSampler
 from supg.selector import ApproxQuery
 from supg.selector import RecallSelector, ImportancePrecisionTwoStageSelector
 from tabulate import tabulate
+from numba import njit, jit, prange
 
 def print_dict(d, header='Key'):
     headers = [header, '']
     data = [(k,v) for k,v in d.items()]
     print(tabulate(data, headers=headers))
+
+@jit(parallel=True)
+def propagation(y_pred, topk_reps, topk_distances):
+    '''
+    numba acceleration
+    topk_reps here is a sub-array of the y_true
+    '''
+    for i in prange(len(y_pred)):
+        weights = topk_distances[i]
+        weights = np.sum(weights) - weights
+        weights = weights / weights.sum()
+        counts = topk_reps[i]
+        y_pred[i] =  np.sum(counts * weights)
+    return y_pred
 
 class BaseQuery:
     def __init__(self, index):
@@ -31,12 +46,17 @@ class BaseQuery:
             )
             y_pred = np.zeros(len(topk_reps))
 
-            for i in tqdm(range(len(y_pred)), 'Propagation'):
+            '''for i in tqdm(range(len(y_pred)), 'Propagation'):
                 weights = topk_distances[i]
                 weights = np.sum(weights) - weights
                 weights = weights / weights.sum()
                 counts = y_true[topk_reps[i]]
-                y_pred[i] =  np.sum(counts * weights)
+                y_pred[i] =  np.sum(counts * weights)'''
+            for i in reps:
+                y_true[i] = float(y_true[i])
+            tmp = y_true[topk_reps]
+            tmp = tmp.astype(np.float32)
+            y_pred = propagation(y_pred, tmp, topk_distances)
         else:
             y_true = self.score(target_dnn_cache.df)
             y_pred = np.zeros(len(topk_reps))  

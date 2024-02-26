@@ -1,15 +1,24 @@
 class IndexConfig:
     def __init__(self):
-        self.do_mining = True
-        self.do_training = True
-        self.do_infer = True
-        self.do_bucketting = True
+        self.cache_root = 'cache'
+
+        self.do_mining = True # Boolean that determines whether the mining step is skipped or not
+        self.do_training = True # Boolean that determines whether the training/fine-tuning step of the embedding dnn is skipped or not
+        self.do_infer = True # Boolean that allows you to either compute embeddings or load them from cache
+        self.do_bucketting = True # Boolean that allows you to compute the buckets or load them from cache
         
-        self.batch_size = 16
-        self.nb_train = 3000
-        self.train_margin = 1.0
+        self.batch_size = 16 # general batch size for both the target and embedding dnn
+        self.nb_train = 3000 # controls how many datapoints are labeled to perform the triplet training
+        self.train_margin = 1.0 # controls the margin parameter of the triplet loss
         self.train_lr = 1e-4
-        self.max_k = 5
-        self.nb_buckets = 7000
-        self.nb_training_its = 12000
+        self.max_k = 5 # controls the k parameter described in the paper (for computing distance weighted means and votes)
+        self.nb_buckets = 7000 # controls the number of buckets used to construct the index
+        self.nb_training_its = 12000 # controls the number of datapoints are passed through the model during training
         self.seed = 1
+
+    def eval(self):
+        self.do_mining = False
+        self.do_training = False
+        self.do_infer = False
+        self.do_bucketting = False
+        return self

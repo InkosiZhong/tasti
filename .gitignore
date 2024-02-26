@@ -2,3 +2,6 @@
 tasti/__pycache__/*
 tasti/examples/__pycache__/*
 thirdparty/*
+TASTI.egg-info
+utils
+cache/*

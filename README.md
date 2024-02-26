@@ -1,8 +1,20 @@
 # Task-agnostic Indexes for Deep Learning-based Queries over Unstructured Data
 
-This is the official project page for "Task-agnostic Indexes for Deep Learning-based Queries over Unstructured Data"
+> This is a modified version of the [official project](https://github.com/stanford-futuredata/tasti) for "Task-agnostic Indexes for Deep Learning-based Queries over Unstructured Data"
 
 Please read the [paper](https://arxiv.org/abs/2009.04540) for full technical details.
+
+# Modifications
+🚀 Faster: use `numba` to accelerate propagation processing.
+
+📦 Smaller: batch caching to reduce memory requirements.
+```python
+# set in the threshold according to the memory size
+# in tasti/exmaples/bucketters.py
+NON_CACHE_THRESHOLD=1e6
+```
+
+📊 Friendly: add more logs and checkpoints.
 
 # Requirements
 
@@ -15,7 +27,6 @@ Install the requitements with `pip install -r requirements.txt`. You will also n
 DO NOT use `numba==0.50.1` since there is a bug.
 
 To reproduce the experiments, your machine will need:
-- 300+GB of memory
 - 500+GB of space
 - GPU (e.g., NVIDIA V100, TITAN V, or later)
 

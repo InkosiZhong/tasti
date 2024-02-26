@@ -29,10 +29,7 @@ from tasti.examples.night_street_offline import NightStreetLHSRecallQuery
 from tasti.examples.night_street_offline import NightStreetAveragePositionAggregateQuery
 
 # Feel free to change this!
-ROOT_DATA_DIR = '/lfs/1/jtguibas/data'
-
-# os.environ['TORCH_HOME'] = '/lfs/1/jtguibas/models'
-# os.environ['FVCORE_CACHE'] = '/lfs/1/jtguibas/models'
+ROOT_DATA_DIR = '/home/inkosizhong/Lab/VideoQuery/datasets/jackson-town-square-small'
 
 COCO_INSTANCE_CATEGORY_NAMES = [
     '__background__', 'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',
@@ -148,7 +145,9 @@ if __name__ == '__main__':
     index.init()
 
     query = NightStreetAggregateQuery(index)
-    query.execute(err_tol=0.1, confidence=0.1)
+    #query.execute(err_tol=0.1, confidence=0.1)
+    query.execute_metrics(err_tol=0.1, confidence=0.1)
+    exit()
 
     query = NightStreetLimitQuery(index)
     query.execute(want_to_find=4, nb_to_find=3)

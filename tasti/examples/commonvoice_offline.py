@@ -291,11 +291,11 @@ for TRIAL in range(TRIALS):
     model = PL(max(dataset.df["age"]) + 1)
     trainer = pl.Trainer(max_epochs=3, gpus=1)
     trainer.fit(model,
-                DataLoader(train, batch_size=64, shuffle=True, num_workers=56, pin_memory=True),
-                DataLoader(val, batch_size=64, shuffle=True, num_workers=56, pin_memory=True))
+                DataLoader(train, batch_size=64, shuffle=True, num_workers=0, # not support pin_memory=True),
+                DataLoader(val, batch_size=64, shuffle=True, num_workers=0, # not support pin_memory=True))
 
     argmax = True
-    dataloader = DataLoader(dataset, batch_size=64, num_workers=56, pin_memory=True)
+    dataloader = DataLoader(dataset, batch_size=64, num_workers=0, # not support pin_memory=True)
     y_pred = []
     y_true = []
     model = model.eval().cuda()
@@ -322,11 +322,11 @@ for TRIAL in range(TRIALS):
     model = PL(max(dataset.df["gender"]) + 1)
     trainer = pl.Trainer(max_epochs=3, gpus=1)
     trainer.fit(model,
-                DataLoader(train, batch_size=64, shuffle=True, num_workers=56, pin_memory=True),
-                DataLoader(val, batch_size=64, shuffle=True, num_workers=56, pin_memory=True))
+                DataLoader(train, batch_size=64, shuffle=True, num_workers=0, # not support pin_memory=True),
+                DataLoader(val, batch_size=64, shuffle=True, num_workers=0, # not support pin_memory=True))
 
     argmax = False
-    dataloader = DataLoader(dataset, batch_size=64, num_workers=56, pin_memory=True)
+    dataloader = DataLoader(dataset, batch_size=64, num_workers=0, # not support pin_memory=True)
     y_pred = []
     y_true = []
     model = model.eval().cuda()
