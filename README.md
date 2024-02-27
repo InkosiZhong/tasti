@@ -19,7 +19,7 @@ NON_CACHE_THRESHOLD=1e6 # in tasti/exmaples/bucketters.py
 
 Install the requitements with `pip install -r requirements.txt`. You will also need (via `pip install -e .`):
 - [SWAG](https://github.com/stanford-futuredata/swag-python)
-- [BlazeIt](https://github.com/stanford-futuredata/blazeit)
+- [BlazeIt](https://github.com/InkosiZhong/blazeit) (a modified version for tasti)
 - [SUPG](https://github.com/stanford-futuredata/supg)
 - Install the tasti package with `pip install -e .` as well.
 
