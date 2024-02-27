@@ -117,13 +117,14 @@ class Index:
             reps, _, _ = bucketter.bucket(embeddings, self.config.max_k)
             self.training_idxs = reps
             np.save(os.path.join(self.config.cache_root, 'training_idxs.npy'), self.training_idxs)
+        elif os.path.exists(os.path.join(self.config.cache_root, 'training_idxs.npy')):
+            self.training_idxs = np.load(os.path.join(self.config.cache_root, 'training_idxs.npy'))
         else:
-            '''self.training_idxs = self.rand.choice(
-                    len(self.get_embedding_dnn_dataset(train=True)),
+            self.training_idxs = self.rand.choice(
+                    len(self.get_embedding_dnn_dataset(train_or_test='train')),
                     size=self.config.nb_train,
                     replace=False
-            )'''
-            self.training_idxs = np.load(os.path.join(self.config.cache_root, 'training_idxs.npy'))
+            )
             
     def do_training(self):
         '''
