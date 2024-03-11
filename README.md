@@ -42,7 +42,7 @@ conda install -c conda-forge opencv
 pip install -e .
 cd ..
 
-git clone https://github.com/stanford-futuredata/blazeit.git
+git clone https://github.com/inkosizhong/blazeit.git
 cd blazeit/
 conda install pytorch torchvision cudatoolkit=10.1 -c pytorch
 conda install -c conda-forge pyclipper
