@@ -44,7 +44,7 @@ cd ..
 
 git clone https://github.com/inkosizhong/blazeit.git
 cd blazeit/
-conda install pytorch torchvision cudatoolkit=10.1 -c pytorch
+pip install torch torchvision torchaudio
 conda install -c conda-forge pyclipper
 pip install -e .
 cd ..
