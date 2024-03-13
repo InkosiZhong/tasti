@@ -63,17 +63,17 @@ pip install -e .
 
 # Reproducing Experiments
 
-We provide code for creating a TASTI for the `night-street` video dataset along with all the queries mentioned in the paper (aggregation, limit, SUPG, position, etc). You can download the `night-street` video dataset [here](https://drive.google.com/drive/folders/1phQuGu4oWwbArurprqruMztTdP1Fzz2F?usp=sharing). Download the `2017-12-14.zip` and `2017-12-17.zip` files. Unzip the files and place the video data in `/lfs/1/jtguibas/data` (feel free to change this path in `night_street_offline.py`). For speed purposes, the target dnn will not run in realtime and we have instead provided the outputs [here](https://drive.google.com/drive/folders/1XKZmBb0AvCBJX11bJGdoxdgMozoiSuWf?usp=sharing). Place the csv files in `/lfs/1/jtguibas/data`. Then, you can reproduce the experiments by running:
+We provide code for creating a TASTI for the `night-street` video dataset along with all the queries mentioned in the paper (aggregation, limit, SUPG, position, etc). You can download the `night-street` video dataset [here](https://drive.google.com/drive/folders/1phQuGu4oWwbArurprqruMztTdP1Fzz2F?usp=sharing). Download the `2017-12-14.zip` and `2017-12-17.zip` files. Unzip the files and place the video data in `/lfs/1/jtguibas/data` (feel free to change this path in `night_street.py`). For speed purposes, the target dnn will not run in realtime and we have instead provided the outputs [here](https://drive.google.com/drive/folders/1XKZmBb0AvCBJX11bJGdoxdgMozoiSuWf?usp=sharing). Place the csv files in `/lfs/1/jtguibas/data`. Then, you can reproduce the experiments by running:
 
 ```
-python tasti/examples/night_street_offline.py
+python tasti/examples/offline/night_street.py
 ```
 
 We also provide an online version of the code that allows you to run the target dnn in realtime. For efficiency purposes, we use [Mask R-CNN ResNet-50 FPN](https://pytorch.org/docs/stable/torchvision/models.html#object-detection-instance-segmentation-and-person-keypoint-detection) as the target dnn. However, the actual model used in the paper is the Mask R-CNN X 152 model available in [detectron2](https://github.com/facebookresearch/detectron2). We encourage you to replace the inference with TensorRT or another model serving system for more serious needs.
 
-To run the WikiSQL example, download the data [here](https://github.com/salesforce/WikiSQL) and place `train.jsonl` in `/lfs/1/jtguibas/data` (again, feel free to change this path inside `wikisql_offline.py`).
+To run the WikiSQL example, download the data [here](https://github.com/salesforce/WikiSQL) and place `train.jsonl` in `/lfs/1/jtguibas/data` (again, feel free to change this path inside `wikisql.py`).
 
-To run the CommonVoice example, download the data [here](https://commonvoice.mozilla.org/en/datasets) and install `audioset_tagging_cnn` from [here](https://github.com/qiuqiangkong/audioset_tagging_cnn). You will also need to download the `Cnn10` and `ResNet22` models from there. After, adjust the paths in `commonvoice_offline.py` accordingly and make sure to install any missing dependencies.
+To run the CommonVoice example, download the data [here](https://commonvoice.mozilla.org/en/datasets) and install `audioset_tagging_cnn` from [here](https://github.com/qiuqiangkong/audioset_tagging_cnn). You will also need to download the `Cnn10` and `ResNet22` models from there. After, adjust the paths in `commonvoice` accordingly and make sure to install any missing dependencies.
 
 # Customizing TASTI
 
