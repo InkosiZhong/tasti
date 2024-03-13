@@ -16,6 +16,8 @@ class IndexConfig:
         self.nb_training_its = 12000 # controls the number of datapoints are passed through the model during training
         self.seed = 1
 
+        self.query_objects = None
+
     def eval(self):
         self.do_mining = False
         self.do_training = False

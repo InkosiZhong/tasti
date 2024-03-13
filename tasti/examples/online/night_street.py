@@ -16,17 +16,18 @@ from tqdm.autonotebook import tqdm
 from scipy.spatial import distance
 from collections import defaultdict
 import torchvision.transforms as transforms
-from tasti.examples.night_street_offline import VideoDataset
-from tasti.examples.night_street_offline import night_street_is_close_helper
-from tasti.examples.night_street_offline import night_street_embedding_dnn_transform_fn
-from tasti.examples.night_street_offline import night_street_target_dnn_transform_fn
-from tasti.examples.night_street_offline import NightStreetAggregateQuery
-from tasti.examples.night_street_offline import NightStreetLimitQuery
-from tasti.examples.night_street_offline import NightStreetSUPGPrecisionQuery
-from tasti.examples.night_street_offline import NightStreetSUPGRecallQuery
-from tasti.examples.night_street_offline import NightStreetLHSPrecisionQuery
-from tasti.examples.night_street_offline import NightStreetLHSRecallQuery
-from tasti.examples.night_street_offline import NightStreetAveragePositionAggregateQuery
+from tasti.examples.video_db import VideoDataset
+from tasti.examples.video_db import video_db_is_close_helper
+from tasti.examples.video_db import AggregateQuery
+from tasti.examples.video_db import LimitQuery
+from tasti.examples.video_db import SUPGPrecisionQuery
+from tasti.examples.video_db import SUPGRecallQuery
+from tasti.examples.video_db import LHSPrecisionQuery
+from tasti.examples.video_db import LHSRecallQuery
+from tasti.examples.video_db import AveragePositionAggregateQuery
+from tasti.examples.video_db import TASTIConfig, PretrainConfig
+from tasti.examples.offline.night_street import night_street_embedding_dnn_transform_fn
+from tasti.examples.offline.night_street import night_street_target_dnn_transform_fn
 
 # Feel free to change this!
 ROOT_DATA_DIR = '/home/inkosizhong/Lab/VideoQuery/datasets/jackson-town-square'
@@ -118,7 +119,7 @@ class NightStreetOnlineIndex(tasti.Index):
         for current_obj in list(objects):
             label1_disjoint = [obj for obj in label1 if obj.object_name == current_obj]
             label2_disjoint = [obj for obj in label2 if obj.object_name == current_obj]
-            is_redundant = night_street_is_close_helper(label1_disjoint, label2_disjoint)
+            is_redundant = video_db_is_close_helper(label1_disjoint, label2_disjoint)
             if not is_redundant:
                 return False
         return True
@@ -145,23 +146,23 @@ if __name__ == '__main__':
     index = NightStreetOnlineIndex(config)
     index.init()
 
-    query = NightStreetAggregateQuery(index)
+    query = AggregateQuery(index)
     query.execute(err_tol=0.1, confidence=0.1)
 
-    query = NightStreetLimitQuery(index)
+    query = LimitQuery(index)
     query.execute(want_to_find=4, nb_to_find=3)
 
-    query = NightStreetSUPGPrecisionQuery(index)
+    query = SUPGPrecisionQuery(index)
     query.execute(budget=100)
 
-    query = NightStreetSUPGRecallQuery(index)
+    query = SUPGRecallQuery(index)
     query.execute(budget=100)
 
-    query = NightStreetLHSPrecisionQuery(index)
+    query = LHSPrecisionQuery(index)
     query.execute(budget=100)
 
-    query = NightStreetLHSRecallQuery(index)
+    query = LHSRecallQuery(index)
     query.execute(budget=100)
 
-    query = NightStreetAveragePositionAggregateQuery(index)
+    query = AveragePositionAggregateQuery(index)
     query.execute(err_tol=0.1, confidence=0.1)

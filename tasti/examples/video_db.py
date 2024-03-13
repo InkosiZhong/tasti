@@ -79,16 +79,23 @@ class VideoDataset(torch.utils.data.Dataset):
 LabelDataset loads the target dnn .csv files and allows you to access the target dnn outputs of given frames.
 '''
 class LabelDataset(torch.utils.data.Dataset):
-    def __init__(self, labels_fp, length):
+    def __init__(self, labels_fp, length, valid_area=None, query_objects=None):
         df = pd.read_csv(labels_fp)
-        df = df[df['object_name'].isin(['car'])]
+        if query_objects != None:
+            df = df[df['object_name'].isin(query_objects)]
         frame_to_rows = defaultdict(list)
         for row in df.itertuples():
-            frame_to_rows[row.frame].append(row)
+            if valid_area == None or self.is_valid(row, valid_area):
+                frame_to_rows[row.frame].append(row)
         labels = []
         for frame_idx in range(length):
             labels.append(frame_to_rows[frame_idx])
         self.labels = labels
+
+    def is_valid(self, row, valid_area):
+        xmin, ymin, xmax, ymax = valid_area
+        return row.xmin > xmin and row.ymin > ymin and \
+            row.xmax < xmax and row.ymax < ymax
         
     def __len__(self):
         return len(self.labels)
@@ -97,25 +104,9 @@ class LabelDataset(torch.utils.data.Dataset):
         return self.labels[idx]
 
 '''
-Preprocessing function of a frame before it is passed to the Embedding DNN.
-'''
-def night_street_embedding_dnn_transform_fn(frame):
-    xmin, xmax, ymin, ymax = 0, 1750, 540, 1080
-    frame = frame[ymin:ymax, xmin:xmax]
-    frame = cv2.resize(frame, (224, 224))
-    frame = torchvision.transforms.functional.to_tensor(frame)
-    return frame
-
-def night_street_target_dnn_transform_fn(frame):
-    xmin, xmax, ymin, ymax = 0, 1750, 540, 1080
-    frame = frame[ymin:ymax, xmin:xmax]
-    frame = torchvision.transforms.functional.to_tensor(frame)
-    return frame
-
-'''
 Defines our notion of 'closeness' as described in the paper for two labels for only one object type.
 '''
-def night_street_is_close_helper(label1, label2):
+def video_db_is_close_helper(label1, label2):
     if len(label1) != len(label2):
         return False
     counter = 0
@@ -134,90 +125,24 @@ def night_street_is_close_helper(label1, label2):
         if expected_counter != counter:
             break
     return len(label1) == counter
-        
-class NightStreetOfflineIndex(tasti.Index):
-    def get_target_dnn(self):
-        '''
-        In this case, because we are running the target dnn offline, so we just return the identity.
-        '''
-        model = torch.nn.Identity()
-        return model
-        
-    def get_embedding_dnn(self):
-        model = torchvision.models.resnet18(pretrained=True, progress=True)
-        model.fc = torch.nn.Linear(512, 128)
-        return model
-    
-    def get_pretrained_embedding_dnn(self):
-        '''
-        Note that the pretrained embedding dnn sometime differs from the embedding dnn.
-        '''
-        model = torchvision.models.resnet18(pretrained=True, progress=True)
-        model.fc = torch.nn.Identity()
-        return model
-    
-    def get_target_dnn_dataset(self, train_or_test):
-        if train_or_test == 'train':
-            video_fp = os.path.join(ROOT_DATA_DIR, '2017-12-14')
-        else:
-            video_fp = os.path.join(ROOT_DATA_DIR, '2017-12-17')
-        video = VideoDataset(
-            video_fp=video_fp,
-            transform_fn=night_street_target_dnn_transform_fn
-        )
-        return video
-    
-    def get_embedding_dnn_dataset(self, train_or_test):
-        if train_or_test == 'train':
-            video_fp = os.path.join(ROOT_DATA_DIR, '2017-12-14')
-        else:
-            video_fp = os.path.join(ROOT_DATA_DIR, '2017-12-17')
-        video = VideoDataset(
-            video_fp=video_fp,
-            transform_fn=night_street_embedding_dnn_transform_fn
-        )
-        return video
-    
-    def override_target_dnn_cache(self, target_dnn_cache, train_or_test):
-        if train_or_test == 'train':
-            labels_fp = os.path.join(ROOT_DATA_DIR, 'jackson-town-square-2017-12-14.csv')
-        else:
-            labels_fp = os.path.join(ROOT_DATA_DIR, 'jackson-town-square-2017-12-17.csv')
-        labels = LabelDataset(
-            labels_fp=labels_fp,
-            length=len(target_dnn_cache)
-        )
-        return labels
-    
-    def is_close(self, label1, label2):
-        objects = set()
-        for obj in (label1 + label2):
-            objects.add(obj.object_name)
-        for current_obj in list(objects):
-            label1_disjoint = [obj for obj in label1 if obj.object_name == current_obj]
-            label2_disjoint = [obj for obj in label2 if obj.object_name == current_obj]
-            is_redundant = night_street_is_close_helper(label1_disjoint, label2_disjoint)
-            if not is_redundant:
-                return False
-        return True
 
-class NightStreetAggregateQuery(tasti.AggregateQuery):
+class AggregateQuery(tasti.AggregateQuery):
     def score(self, target_dnn_output):
         return len(target_dnn_output)
     
-class NightStreetLimitQuery(tasti.LimitQuery):
+class LimitQuery(tasti.LimitQuery):
     def score(self, target_dnn_output):
         return len(target_dnn_output)
     
-class NightStreetSUPGPrecisionQuery(tasti.SUPGPrecisionQuery):
+class SUPGPrecisionQuery(tasti.SUPGPrecisionQuery):
     def score(self, target_dnn_output):
         return 1.0 if len(target_dnn_output) > 0 else 0.0
     
-class NightStreetSUPGRecallQuery(tasti.SUPGRecallQuery):
+class SUPGRecallQuery(tasti.SUPGRecallQuery):
     def score(self, target_dnn_output):
         return 1.0 if len(target_dnn_output) > 0 else 0.0
     
-class NightStreetLHSPrecisionQuery(tasti.SUPGPrecisionQuery):
+class LHSPrecisionQuery(tasti.SUPGPrecisionQuery):
     def score(self, target_dnn_output):
         def proc_boxes(boxes):
             mid = 1750 / 2
@@ -228,7 +153,7 @@ class NightStreetLHSPrecisionQuery(tasti.SUPGPrecisionQuery):
             return False
         return proc_boxes(target_dnn_output)
     
-class NightStreetLHSRecallQuery(tasti.SUPGRecallQuery):
+class LHSRecallQuery(tasti.SUPGRecallQuery):
     def score(self, target_dnn_output):
         def proc_boxes(boxes):
             mid = 1750 / 2
@@ -239,7 +164,7 @@ class NightStreetLHSRecallQuery(tasti.SUPGRecallQuery):
             return False
         return proc_boxes(target_dnn_output)
     
-class NightStreetAveragePositionAggregateQuery(tasti.AggregateQuery):
+class AveragePositionAggregateQuery(tasti.AggregateQuery):
     def score(self, target_dnn_output):
         def proc_boxes(boxes):
             avg = 0.
@@ -251,44 +176,18 @@ class NightStreetAveragePositionAggregateQuery(tasti.AggregateQuery):
             return avg / len(boxes)
         return proc_boxes(target_dnn_output)
     
-class NightStreetOfflineConfig(tasti.IndexConfig):
+class TASTIConfig(tasti.IndexConfig):
     def __init__(self):
         super().__init__()
         self.do_mining = True
         self.do_training = True
         self.do_infer = True
         self.do_bucketting = True
-        
-        self.batch_size = 16
-        self.nb_train = 3000
-        self.train_margin = 1.0
-        self.train_lr = 1e-4
-        self.max_k = 5
-        self.nb_buckets = 7000
-        self.nb_training_its = 12000
-    
-if __name__ == '__main__':
-    config = NightStreetOfflineConfig()
-    index = NightStreetOfflineIndex(config)
-    index.init()
 
-    query = NightStreetAggregateQuery(index)
-    query.execute_metrics(err_tol=0.01, confidence=0.05)
-    
-    query = NightStreetAveragePositionAggregateQuery(index)
-    query.execute_metrics(err_tol=0.005, confidence=0.05)
-
-    query = NightStreetLimitQuery(index)
-    query.execute_metrics(want_to_find=5, nb_to_find=10)
-
-    query = NightStreetSUPGPrecisionQuery(index)
-    query.execute_metrics(10000)
-
-    query = NightStreetSUPGRecallQuery(index)
-    query.execute_metrics(10000)
-
-    query = NightStreetLHSPrecisionQuery(index)
-    query.execute_metrics(10000)
-
-    query = NightStreetLHSRecallQuery(index)
-    query.execute_metrics(10000)    
+class PretrainConfig(tasti.IndexConfig):
+    def __init__(self):
+        super().__init__()
+        self.do_mining = False
+        self.do_training = False
+        self.do_infer = True
+        self.do_bucketting = True
